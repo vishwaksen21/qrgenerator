@@ -78,18 +78,34 @@ form.addEventListener('submit', async (e) => {
         });
         
         console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
         
-        const data = await response.json();
-        console.log('Response data:', data);
+        // Try to get response text first
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+        
+        let data;
+        try {
+            data = JSON.parse(responseText);
+            console.log('Parsed response data:', data);
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            showError('Invalid response from server: ' + responseText.substring(0, 100));
+            return;
+        }
         
         if (response.ok && data.success) {
+            console.log('Success! Setting image...');
             // Display QR code
             qrImage.src = data.image;
+            console.log('Image src set to:', data.image.substring(0, 50) + '...');
             result.style.display = 'block';
+            console.log('Result div displayed');
             
             // Scroll to result
             result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
+            console.error('Request failed:', data);
             showError(data.error || 'Failed to generate QR code');
         }
     } catch (error) {

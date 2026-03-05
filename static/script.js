@@ -10,6 +10,21 @@ const result = document.getElementById('result');
 const qrImage = document.getElementById('qrImage');
 const downloadBtn = document.getElementById('downloadBtn');
 const errorDiv = document.getElementById('error');
+const debugInfo = document.getElementById('debugInfo');
+const debugLog = document.getElementById('debugLog');
+
+// Show debug panel
+if (debugInfo) debugInfo.style.display = 'block';
+
+function addDebug(message) {
+    console.log(message);
+    if (debugLog) {
+        const time = new Date().toLocaleTimeString();
+        debugLog.innerHTML += `<div>[${time}] ${message}</div>`;
+    }
+}
+
+addDebug('Script initialized');
 
 console.log('Elements found:', {
     form: !!form,
@@ -19,21 +34,7 @@ console.log('Elements found:', {
     btnText: !!btnText,
     btnLoader: !!btnLoader,
     result: !!result,
-    qrImage: !!qrImage,
-    downloadBtn: !!downloadBtn,
-    errorDiv: !!errorDiv
-});
-
-// Test if button is clickable
-if (generateBtn) {
-    generateBtn.addEventListener('click', (e) => {
-        console.log('BUTTON CLICKED (direct)');
-    });
-}
-
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    console.log('FORM SUBMITTED');
+    addDebug('Form submitted');
     
     // Reset previous results/errors
     result.style.display = 'none';
@@ -41,14 +42,17 @@ form.addEventListener('submit', async (e) => {
     
     // Get form data
     const qrData = qrDataInput.value.trim();
+    addDebug('QR Data: ' + qrData);
     
     if (!qrData) {
         showError('Please enter a URL or text');
+        addDebug('ERROR: No QR data entered');
         return;
     }
     
     // Show loading state
     setLoading(true);
+    addDebug('Loading started...');
     
     try {
         // Prepare request data
@@ -58,15 +62,19 @@ form.addEventListener('submit', async (e) => {
         };
         
         console.log('Preparing request for:', qrData);
+        addDebug('Preparing API request');
         
         // Handle logo file if provided
         if (logoFileInput.files.length > 0) {
             const logoFile = logoFileInput.files[0];
             console.log('Processing logo:', logoFile.name);
+            addDebug('Processing logo: ' + logoFile.name);
             requestData.logo = await fileToBase64(logoFile);
+            addDebug('Logo converted to base64');
         }
         
         console.log('Sending request to /api/generate');
+        addDebug('Sending request to /api/generate...');
         
         // Send request to API
         const response = await fetch('/api/generate', {
@@ -78,18 +86,58 @@ form.addEventListener('submit', async (e) => {
         });
         
         console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        addDebug('Response status: ' + response.status);
         
-        const data = await response.json();
-        console.log('Response data:', data);
+        // Try to get response text first
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+        addDebug('Raw response length: ' + responseText.length);
+        
+        let data;
+        try {
+            data = JSON.parse(responseText);
+            console.log('Parsed response data:', data);
+            addDebug('Response parsed successfully');
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            addDebug('ERROR: JSON parse failed - ' + parseError.message);
+            showError('Invalid response from server: ' + responseText.substring(0, 100));
+            return;
+        }
         
         if (response.ok && data.success) {
+            console.log('Success! Setting image...');
+            addDebug('SUCCESS! Displaying QR code...');
             // Display QR code
+        addDebug('EXCEPTION: ' + error.message);
             qrImage.src = data.image;
+            console.log('Image src set to:', data.image.substring(0, 50) + '...');
+            addDebug('Image source set');
             result.style.display = 'block';
+            console.log('Result div displayed');
+            addDebug('Result displayed');
             
             // Scroll to result
             result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
+            console.error('Request failed:', data);
+            addDebug('ERROR: API returned failure - ' + (data.error || 'Unknown error')er: ' + responseText.substring(0, 100));
+            return;
+        }
+        
+        if (response.ok && data.success) {
+            console.log('Success! Setting image...');
+            // Display QR code
+            qrImage.src = data.image;
+            console.log('Image src set to:', data.image.substring(0, 50) + '...');
+            result.style.display = 'block';
+            console.log('Result div displayed');
+            
+            // Scroll to result
+            result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+            console.error('Request failed:', data);
             showError(data.error || 'Failed to generate QR code');
         }
     } catch (error) {
