@@ -34,11 +34,16 @@ form.addEventListener('submit', async (e) => {
             logo: null
         };
         
+        console.log('Preparing request for:', qrData);
+        
         // Handle logo file if provided
         if (logoFileInput.files.length > 0) {
             const logoFile = logoFileInput.files[0];
+            console.log('Processing logo:', logoFile.name);
             requestData.logo = await fileToBase64(logoFile);
         }
+        
+        console.log('Sending request to /api/generate');
         
         // Send request to API
         const response = await fetch('/api/generate', {
@@ -49,7 +54,10 @@ form.addEventListener('submit', async (e) => {
             body: JSON.stringify(requestData)
         });
         
+        console.log('Response status:', response.status);
+        
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (response.ok && data.success) {
             // Display QR code
@@ -62,8 +70,8 @@ form.addEventListener('submit', async (e) => {
             showError(data.error || 'Failed to generate QR code');
         }
     } catch (error) {
-        showError('Network error. Please try again.');
-        console.error('Error:', error);
+        console.error('Full error:', error);
+        showError('Network error. Please try again. Check console for details.');
     } finally {
         setLoading(false);
     }

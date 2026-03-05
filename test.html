@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>QR Generator API Test</h1>
+    
+    <h3>1. Test API Connection</h3>
+    <button onclick="testAPI()">Test /api/test</button>
+    <pre id="apiTest"></pre>
+    
+    <h3>2. Test QR Generation (No Logo)</h3>
+    <button onclick="testQR()">Test /api/generate</button>
+    <pre id="qrTest"></pre>
+    <div id="qrResult"></div>
+    
+    <script>
+        async function testAPI() {
+            const output = document.getElementById('apiTest');
+            output.textContent = 'Testing...';
+            try {
+                const response = await fetch('/api/test');
+                const data = await response.json();
+                output.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                output.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testQR() {
+            const output = document.getElementById('qrTest');
+            const result = document.getElementById('qrResult');
+            output.textContent = 'Testing...';
+            result.innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        data: 'https://github.com/vishwaksen21'
+                    })
+                });
+                
+                const data = await response.json();
+                output.textContent = JSON.stringify({
+                    status: response.status,
+                    success: data.success,
+                    hasImage: !!data.image
+                }, null, 2);
+                
+                if (data.image) {
+                    result.innerHTML = '<img src="' + data.image + '" style="max-width: 300px;">';
+                }
+            } catch (error) {
+                output.textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
