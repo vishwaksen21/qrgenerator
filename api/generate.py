@@ -1,13 +1,19 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import qrcode
 from PIL import Image
 import io
 import base64
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['POST', 'OPTIONS'])
 def handler():
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     try:
         data = request.json
         qr_data = data.get('data', '')
@@ -61,4 +67,7 @@ def handler():
         })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"Error generating QR code: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'success': False}), 500
