@@ -7,21 +7,14 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        
-        message = json.dumps({
-            'message': 'QR Code Generator API',
-            'endpoints': {
-                '/api/': 'GET - API info',
-                '/api/generate': 'POST - Generate QR code with optional logo',
-                '/api/test': 'GET - Test if API is working'
-            },
-            'usage': 'Send POST request to /api/generate with JSON: {"data": "your-url", "logo": "base64-image"}'
-        })
+        message = json.dumps({'status': 'ok', 'message': 'API is working!'})
         self.wfile.write(message.encode())
+        return
     
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
+        return
