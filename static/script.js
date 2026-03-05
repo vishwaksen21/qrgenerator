@@ -1,3 +1,5 @@
+console.log('=== QR Generator Script Loading ===');
+
 const form = document.getElementById('qrForm');
 const qrDataInput = document.getElementById('qrData');
 const logoFileInput = document.getElementById('logoFile');
@@ -9,8 +11,29 @@ const qrImage = document.getElementById('qrImage');
 const downloadBtn = document.getElementById('downloadBtn');
 const errorDiv = document.getElementById('error');
 
+console.log('Elements found:', {
+    form: !!form,
+    qrDataInput: !!qrDataInput,
+    logoFileInput: !!logoFileInput,
+    generateBtn: !!generateBtn,
+    btnText: !!btnText,
+    btnLoader: !!btnLoader,
+    result: !!result,
+    qrImage: !!qrImage,
+    downloadBtn: !!downloadBtn,
+    errorDiv: !!errorDiv
+});
+
+// Test if button is clickable
+if (generateBtn) {
+    generateBtn.addEventListener('click', (e) => {
+        console.log('BUTTON CLICKED (direct)');
+    });
+}
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    console.log('FORM SUBMITTED');
     
     // Reset previous results/errors
     result.style.display = 'none';
