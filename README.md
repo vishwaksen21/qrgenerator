@@ -8,7 +8,7 @@ Generate QR codes with a custom logo/image in the center - available as both a w
 - 🖼️ Optional logo/image in the center of QR code
 - 🔍 High error correction for reliable scanning
 - ⚡ Fast serverless deployment on Vercel
-- 💾 Download generated QR codes instantly
+- 💾 Download generated QR codes instantly.
 
 ## 🚀 Quick Start
 
